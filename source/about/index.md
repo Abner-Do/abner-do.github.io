@@ -11,4 +11,4 @@ date: 2022-03-10 00:13:53
 
 身高是个谜。
 
-![BingWallpaper](about\BingWallpaper.jpg)
+![BingWallpaper](index/BingWallpaper.jpg)

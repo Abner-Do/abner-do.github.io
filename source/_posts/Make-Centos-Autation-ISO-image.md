@@ -5,7 +5,7 @@ tags: Tech
 categories: Technology
 ---
 
-本讨论记录Autation Centos7制作过程。功能为自定义镜像自动安装。
+本讨论记录Autation Centos7制作过程。功能为无人值守安装自定义镜像。
 
 A1.环境准备
 Platform:  Centos7
@@ -124,7 +124,7 @@ docker-ce-cli
 containerd.io
 lrzsz
 strace
-lsb_release
+redhat-lsb-core
 telnet
 mydumper
 ```

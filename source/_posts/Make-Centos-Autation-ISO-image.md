@@ -44,6 +44,8 @@ mount: /dev/loop0 is write-protected, mounting read-only
 
 A3.硬盘分区
 
+UEFI部分：
+
 ```shell
 cd /home/CentOS7-Autation
 mkdir -p Autation/kickstart-scripts/
@@ -99,6 +101,70 @@ echo "part /boot/efi --fstype=efi --size $efiCap --fsoptions=\"umask=0077,shortn
 echo "part pv.01 --fstype lvmpv --size $(($totalCap-200-500))  --maxsize $(($totalCap-200-500)) --ondisk $diskname --grow" >> /tmp/part-include
 echo "volgroup centos --pesize 4096 pv.01" >> /tmp/part-include
 #echo "logvol swap  --fstype swap --hibernation --name lv_swap --vgname centos" >> /tmp/part-include
+echo "logvol swap  --fstype swap --size 16384 --name lv_swap --vgname centos" >> /tmp/part-include
+echo "logvol /     --fstype xfs --size $rootCap --grow --name lv_root --vgname centos" >> /tmp/part-include
+#echo "logvol /     --fstype xfs --size $rootCap --maxsize $rootCap --name lv_root --vgname centos" >> /tmp/part-include
+#echo "logvol /home --fstype xfs --size 1 --grow --name lv_home --vgname centos" >> /tmp/part-include
+```
+
+BIOS部分：
+
+```shell
+[root@analysis kickstart-scripts]# cat bios-partdrive.sh 
+#!/bin/bash
+
+LANG=C
+
+for file in /sys/block/*da;do
+  diskname="$(basename $file)"
+  if [[ "sda" == "$diskname" ]]; then
+     diskname="sda"
+     break;
+  elif [[ "hda" == "$diskname" ]]; then
+     diskname="hda"
+     break;
+  elif [[ "xvda" == "$diskname" ]]; then
+     diskname="xvda"
+     break;
+  elif [[ "vda" == "$diskname" ]]; then
+     diskname="vda"
+     break;
+  fi
+done
+echo "diskname: $diskname"
+
+cap=$(gdisk  -l /dev/$diskname|grep "Disk /dev/$diskname"|awk -F ','  '{print $2}'|awk -F ' '  '{print $1}')
+unit=$(gdisk -l /dev/$diskname|grep "Disk /dev/$diskname"|awk -F ','  '{print $2}'|awk -F ' '  '{print $2}')
+echo "  cap: $cap  unit: $unit"
+
+lastUsableSector=$(gdisk -l /dev/$diskname |grep "last usable sector"|awk -F ',' '{print $2}'|awk -F ' ' '{print $5}')
+#Available sectors.
+totalSector=$(($lastUsableSector-2048+1))
+#totalSpace, the unit is MiB.
+totalCap=$(($totalSector*512/1024/1024))
+
+echo "totalCap: $totalCap M"
+
+bootCap=500
+remainCap=$(($totalCap-$bootCap-1))
+#rootCap=$(($remainCap*2/3))
+rootCap=$((100*1024))
+remainCap=$(($remainCap-$rootCap))
+homeCap=$remainCap
+
+echo "boot: $bootCap root: $rootCap "
+
+# System bootloader configuration
+echo "bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=$diskname"> /tmp/part-include
+# Partition clearing information
+echo "clearpart --all --initlabel --disklabel gpt --drives $diskname" >> /tmp/part-include
+# Disk partitioning information
+echo "ignoredisk --only-use $diskname" >> /tmp/part-include
+echo "part /boot --fstype xfs --size $bootCap " >> /tmp/part-include
+echo "part biosboot --fstype="biosboot" --ondisk=sda --size=1" >> /tmp/part-include
+echo "part pv.02 --fstype lvmpv --size $(($totalCap-500-1))  --maxsize $(($totalCap-500-1)) --ondisk $diskname --grow" >> /tmp/part-include
+echo "volgroup centos --pesize 4096 pv.02" >> /tmp/part-include
+#echo "logvol swap  -dd-fstype swap --hibernation --name lv_swap --vgname centos" >> /tmp/part-include
 echo "logvol swap  --fstype swap --size 16384 --name lv_swap --vgname centos" >> /tmp/part-include
 echo "logvol /     --fstype xfs --size $rootCap --grow --name lv_root --vgname centos" >> /tmp/part-include
 #echo "logvol /     --fstype xfs --size $rootCap --maxsize $rootCap --name lv_root --vgname centos" >> /tmp/part-include
@@ -229,52 +295,7 @@ pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
 ```
 
-A7.生成iso镜像文件
- 制作脚本
-
-```shell
-[root@analysis Autation]# cat mkiso.sh 
-#!/bin/bash
-
-#Set Volume ID 
-VolumeID="CentOS 7 x86_64"
-#Set Output Image Name
-OutputImageName="../../CentOS7-Autation-R$(date +%y.%m.%d).iso"
-#Set Source Image directory to generate New Image
-ImageDirectory=".."
-sed 's/Release/R'`date +%y.%m.%d`'/' ./boot-menu/grub.cfg.template > ../EFI/BOOT/grub.cfg
-sed 's/Release/R'`date +%y.%m.%d`'/' ./boot-menu/isolinux.cfg.template > ../isolinux/isolinux.cfg
-
-xorriso -as mkisofs \
-  -c isolinux/boot.cat \
-  -b isolinux/isolinux.bin \
-  -no-emul-boot \
-  -boot-load-size 4 \
-  -boot-info-table \
-  -eltorito-alt-boot \
-  -e images/efiboot.img \
-  -isohybrid-gpt-basdat \
-  -no-emul-boot \
-  -o $OutputImageName \
-  -V "$VolumeID" \
-  -R -J  $ImageDirectory
-
-implantisomd5 $OutputImageName
-```
- 执行命令生成iso生成镜像 
-```
-bash  mkiso.sh
-```
-
-查看生成的镜像
-
-```shell
-[root@analysis home]# ll -d /home/CentOS7-Autation-R22.02.11.iso 
--rw-r--r-- 1 root root 1588158464 Feb 11 09:46 /home/CentOS7-Autation-R22.02.11.iso
-```
-
-添加bios启动
- B1. kickstart配置文件
+BIOS部分：
 
 ```shell
 [root@analysis Autation]# cat bios-ks.cfg 
@@ -353,66 +374,229 @@ pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
 ```
 
-B2.分区部分
+A7. 启动菜单添加自定义kickstart启动
+
+cd Autation/boot-menu
+
+UEFI部分：
 
 ```shell
-[root@analysis kickstart-scripts]# cat bios-partdrive.sh 
+[root@analysis boot-menu]# cat grub.cfg.template 
+set default="0"
+
+function load_video {
+  insmod efi_gop
+  insmod efi_uga
+  insmod video_bochs
+  insmod video_cirrus
+  insmod all_video
+}
+
+load_video
+set gfxpayload=keep
+insmod gzio
+insmod part_gpt
+insmod ext2
+
+set timeout=60
+### END /etc/grub.d/00_header ###
+
+search --no-floppy --set=root -l 'CentOS 7 x86_64'
+
+### BEGIN /etc/grub.d/10_linux ###
+menuentry 'Install CentOS 7 - Autation Release' --class fedora --class gnu-linux --class gnu --class os {
+        linuxefi /images/pxeboot/vmlinuz inst.ks=hd:LABEL=CentOS\x207\x20x86_64:/Autation/ks-cfg/uefi-ks.cfg 
+        inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 quiet
+        initrdefi /images/pxeboot/initrd.img
+}
+menuentry 'Test this media & install CentOS 7' --class fedora --class gnu-linux --class gnu --class os {
+        linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rd.live.check quiet
+        initrdefi /images/pxeboot/initrd.img
+}
+submenu 'Troubleshooting -->' {
+        menuentry 'Install CentOS 7 in basic graphics mode' --class fedora --class gnu-linux --class gnu --class os {
+                linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 xdriver=vesa nomodeset quiet
+                initrdefi /images/pxeboot/initrd.img
+        }
+        menuentry 'Rescue a CentOS system' --class fedora --class gnu-linux --class gnu --class os {
+                linuxefi /images/pxeboot/vmlinuz inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rescue quiet
+                initrdefi /images/pxeboot/initrd.img
+        }
+}
+```
+
+BISO部分：
+
+```shell
+[root@analysis boot-menu]# cat isolinux.cfg.template 
+default vesamenu.c32
+timeout 600
+
+display boot.msg
+
+# Clear the screen when exiting the menu, instead of leaving the menu displayed.
+# For vesamenu, this means the graphical background is still displayed without
+# the menu itself for as long as the screen remains in graphics mode.
+menu clear
+menu background splash.png
+menu title CentOS 7
+menu vshift 8
+menu rows 18
+menu margin 8
+#menu hidden
+menu helpmsgrow 15
+menu tabmsgrow 13
+
+# Border Area
+menu color border * #00000000 #00000000 none
+
+# Selected item
+menu color sel 0 #ffffffff #00000000 none
+
+# Title bar
+menu color title 0 #ff7ba3d0 #00000000 none
+
+# Press [Tab] message
+menu color tabmsg 0 #ff3a6496 #00000000 none
+
+# Unselected menu item
+menu color unsel 0 #84b8ffff #00000000 none
+
+# Selected hotkey
+menu color hotsel 0 #84b8ffff #00000000 none
+
+# Unselected hotkey
+menu color hotkey 0 #ffffffff #00000000 none
+
+# Help text
+menu color help 0 #ffffffff #00000000 none
+
+# A scrollbar of some type? Not sure.
+menu color scrollbar 0 #ffffffff #ff355594 none
+
+# Timeout msg
+menu color timeout 0 #ffffffff #00000000 none
+menu color timeout_msg 0 #ffffffff #00000000 none
+
+# Command prompt text
+menu color cmdmark 0 #84b8ffff #00000000 none
+menu color cmdline 0 #ffffffff #00000000 none
+
+# Do not display the actual menu unless the user presses a key. All that is displayed is a timeout message.
+
+menu tabmsg Press Tab for full configuration options on menu items.
+
+menu separator # insert an empty line
+menu separator # insert an empty line
+
+label linux
+  menu label ^Install CentOS 7 - Autation Release
+  menu default
+  kernel vmlinuz
+  append initrd=initrd.img inst.ks=hd:LABEL=CentOS\x207\x20x86_64:/Autation/ks-cfg/bios-ks.cfg inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 quiet
+
+label check
+  menu label Test this ^media & install CentOS 7
+  kernel vmlinuz
+  append initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rd.live.check quiet
+
+menu separator # insert an empty line
+
+# utilities submenu
+menu begin ^Troubleshooting
+  menu title Troubleshooting
+
+label vesa
+  menu indent count 5
+  menu label Install CentOS 7 in ^basic graphics mode
+  text help
+        Try this option out if you're having trouble installing
+        CentOS 7.
+  endtext
+  kernel vmlinuz
+  append initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 xdriver=vesa nomodeset quiet
+
+label rescue
+  menu indent count 5
+  menu label ^Rescue a CentOS system
+  text help
+        If the system will not boot, this lets you access files
+        and edit config files to try to get it booting again.
+  endtext
+  kernel vmlinuz
+  append initrd=initrd.img inst.stage2=hd:LABEL=CentOS\x207\x20x86_64 rescue quiet
+
+label memtest
+  menu label Run a ^memory test
+  text help
+        If your system is having issues, a problem with your
+        system's memory may be the cause. Use this utility to
+        see if the memory is working correctly.
+  endtext
+  kernel memtest
+
+menu separator # insert an empty line
+
+label local
+  menu label Boot from ^local drive
+  localboot 0xffff
+
+menu separator # insert an empty line
+menu separator # insert an empty line
+
+label returntomain
+  menu label Return to ^main menu
+  menu exit
+
+menu end
+```
+
+
+
+A8. 生成iso镜像文件
+ 制作脚本
+
+```shell
+[root@analysis Autation]# cat mkiso.sh 
 #!/bin/bash
 
-LANG=C
+#Set Volume ID 
+VolumeID="CentOS 7 x86_64"
+#Set Output Image Name
+OutputImageName="../../CentOS7-Autation-R$(date +%y.%m.%d).iso"
+#Set Source Image directory to generate New Image
+ImageDirectory=".."
+sed 's/Release/R'`date +%y.%m.%d`'/' ./boot-menu/grub.cfg.template > ../EFI/BOOT/grub.cfg
+sed 's/Release/R'`date +%y.%m.%d`'/' ./boot-menu/isolinux.cfg.template > ../isolinux/isolinux.cfg
 
-for file in /sys/block/*da;do
-  diskname="$(basename $file)"
-  if [[ "sda" == "$diskname" ]]; then
-     diskname="sda"
-     break;
-  elif [[ "hda" == "$diskname" ]]; then
-     diskname="hda"
-     break;
-  elif [[ "xvda" == "$diskname" ]]; then
-     diskname="xvda"
-     break;
-  elif [[ "vda" == "$diskname" ]]; then
-     diskname="vda"
-     break;
-  fi
-done
-echo "diskname: $diskname"
+xorriso -as mkisofs \
+  -c isolinux/boot.cat \
+  -b isolinux/isolinux.bin \
+  -no-emul-boot \
+  -boot-load-size 4 \
+  -boot-info-table \
+  -eltorito-alt-boot \
+  -e images/efiboot.img \
+  -isohybrid-gpt-basdat \
+  -no-emul-boot \
+  -o $OutputImageName \
+  -V "$VolumeID" \
+  -R -J  $ImageDirectory
 
-cap=$(gdisk  -l /dev/$diskname|grep "Disk /dev/$diskname"|awk -F ','  '{print $2}'|awk -F ' '  '{print $1}')
-unit=$(gdisk -l /dev/$diskname|grep "Disk /dev/$diskname"|awk -F ','  '{print $2}'|awk -F ' '  '{print $2}')
-echo "  cap: $cap  unit: $unit"
-
-lastUsableSector=$(gdisk -l /dev/$diskname |grep "last usable sector"|awk -F ',' '{print $2}'|awk -F ' ' '{print $5}')
-#Available sectors.
-totalSector=$(($lastUsableSector-2048+1))
-#totalSpace, the unit is MiB.
-totalCap=$(($totalSector*512/1024/1024))
-
-echo "totalCap: $totalCap M"
-
-bootCap=500
-remainCap=$(($totalCap-$bootCap-1))
-#rootCap=$(($remainCap*2/3))
-rootCap=$((100*1024))
-remainCap=$(($remainCap-$rootCap))
-homeCap=$remainCap
-
-echo "boot: $bootCap root: $rootCap "
-
-# System bootloader configuration
-echo "bootloader --append=" crashkernel=auto" --location=mbr --boot-drive=$diskname"> /tmp/part-include
-# Partition clearing information
-echo "clearpart --all --initlabel --disklabel gpt --drives $diskname" >> /tmp/part-include
-# Disk partitioning information
-echo "ignoredisk --only-use $diskname" >> /tmp/part-include
-echo "part /boot --fstype xfs --size $bootCap " >> /tmp/part-include
-echo "part biosboot --fstype="biosboot" --ondisk=sda --size=1" >> /tmp/part-include
-echo "part pv.02 --fstype lvmpv --size $(($totalCap-500-1))  --maxsize $(($totalCap-500-1)) --ondisk $diskname --grow" >> /tmp/part-include
-echo "volgroup centos --pesize 4096 pv.02" >> /tmp/part-include
-#echo "logvol swap  -dd-fstype swap --hibernation --name lv_swap --vgname centos" >> /tmp/part-include
-echo "logvol swap  --fstype swap --size 16384 --name lv_swap --vgname centos" >> /tmp/part-include
-echo "logvol /     --fstype xfs --size $rootCap --grow --name lv_root --vgname centos" >> /tmp/part-include
-#echo "logvol /     --fstype xfs --size $rootCap --maxsize $rootCap --name lv_root --vgname centos" >> /tmp/part-include
-#echo "logvol /home --fstype xfs --size 1 --grow --name lv_home --vgname centos" >> /tmp/part-include
+implantisomd5 $OutputImageName
 ```
+ 
+
+执行命令生成iso生成镜像 
+
+```
+bash  mkiso.sh
+```
+
+查看生成的镜像
+
+```shell
+[root@analysis home]# ll -d /home/CentOS7-Autation-R22.02.11.iso 
+-rw-r--r-- 1 root root 1588158464 Feb 11 09:46 /home/CentOS7-Autation-R22.02.11.iso
+```
+

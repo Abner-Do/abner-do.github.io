@@ -7,12 +7,13 @@ categories: Technology
 
 本讨论记录Autation Centos7制作过程。功能为无人值守安装自定义镜像。
 
-A1.环境准备
+#### A1.环境准备
+
 Platform:  Centos7
 
 Requires: 安装操作系统硬盘空间大于100G。
 
-A2.拷贝centos7 Minimal 镜像文件
+#### A2.拷贝centos7 Minimal 镜像文件
 
 ```shell
 [root@analysis home]# mount CentOS-7-x86_64-Minimal-2009.iso /media/
@@ -42,7 +43,7 @@ mount: /dev/loop0 is write-protected, mounting read-only
 7 directories, 6 files
 ```
 
-A3.硬盘分区
+#### A3.硬盘分区
 
 UEFI部分：
 
@@ -171,7 +172,8 @@ echo "logvol /     --fstype xfs --size $rootCap --grow --name lv_root --vgname c
 #echo "logvol /home --fstype xfs --size 1 --grow --name lv_home --vgname centos" >> /tmp/part-include
 ```
 
-A4.准备需要的安装包
+#### A4.准备需要的安装包
+
  安装包列表
  vim Autation/packages-list
 
@@ -216,7 +218,7 @@ createrepo Autation/Packages/Extra
 createrepo Autation/Packages/Updates
 ```
 
-A5.密码生成
+#### A5.密码生成
 
 ```shell
 #!/bin/python3
@@ -374,7 +376,7 @@ pwpolicy luks --minlen=6 --minquality=1 --notstrict --nochanges --notempty
 %end
 ```
 
-A7. 启动菜单添加自定义kickstart启动
+#### A7.启动菜单添加自定义kickstart启动
 
 cd Autation/boot-menu
 
@@ -551,9 +553,8 @@ label returntomain
 menu end
 ```
 
+#### A8. 生成iso镜像文件
 
-
-A8. 生成iso镜像文件
  制作脚本
 
 ```shell
@@ -585,9 +586,7 @@ xorriso -as mkisofs \
 
 implantisomd5 $OutputImageName
 ```
- 
-
-执行命令生成iso生成镜像 
+ 执行命令生成iso生成镜像 
 
 ```
 bash  mkiso.sh
@@ -596,7 +595,7 @@ bash  mkiso.sh
 查看生成的镜像
 
 ```shell
-[root@analysis home]# ll -d /home/CentOS7-Autation-R22.02.11.iso 
--rw-r--r-- 1 root root 1588158464 Feb 11 09:46 /home/CentOS7-Autation-R22.02.11.iso
+[root@analysis CentOS7-Autation]# ll -d /home/CentOS7-Autation-R22.03.10.iso 
+-rw-r--r-- 1 root root 1725753344 Mar 10 17:52 /home/CentOS7-Autation-R22.03.10.iso
 ```
 

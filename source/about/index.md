@@ -3,6 +3,8 @@ title: About
 date: 2022-03-10 00:13:53
 ---
 
+<iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=450 src="//music.163.com/outchain/player?type=0&id=7020312267&auto=1&height=430"></iframe>
+
 #### 一些简单的介绍：
 
 2017年从武汉来到上海，一枚在上海奋斗的IT民工。没有太多的兴趣爱好，去过很多地方。爱自由，希望可以去更多的地方看看。有一些固定可爱的好友，简单的生活。
@@ -17,4 +19,5 @@ date: 2022-03-10 00:13:53
 
 E-mail: 784307069@qq.com
 
-![BingWallpaper](index/BingWallpaper.jpg)
+![BingWallpaper](BingWallpaper.jpg)
+

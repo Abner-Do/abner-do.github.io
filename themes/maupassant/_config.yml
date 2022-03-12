@@ -119,8 +119,8 @@ widgets: ## Six widgets in sidebar provided: search, category, tag, recent_posts
 links:
   - title: Sun Yiming
     url: https://guguant.github.io/
-  - title: site-name2
-    url: http://www.example2.com/
+  - title: tufu
+    url: https://www.haomwei.com/
   - title: site-name3
     url: http://www.example3.com/
 

@@ -4,16 +4,16 @@
 
 # Site
 title: Jia's blog
-subtitle: ''
-description: ''
-keywords:
+subtitle: '记录与分享'
+description: '个人博客'
+keywords: Life,Tech
 author: John Doe
 language: en
 timezone: 'Asia/Shanghai'
 
 # URL
 ## Set your site url here. For example, if you use GitHub Page, set url as 'https://username.github.io/project'
-url: https://abner-do.github.io
+url: http://example.com
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
@@ -41,17 +41,19 @@ external_link:
 filename_case: 0
 render_drafts: false
 post_asset_folder: true
+marked:
+  prependRoot: true
+  postAsset: true
 relative_link: false
 future: true
+syntax_highlighter: highlight.js
 highlight:
-  enable: true
   line_number: true
   auto_detect: false
   tab_replace: ''
   wrap: true
   hljs: false
 prismjs:
-  enable: false
   preprocess: true
   line_number: true
   tab_replace: ''
@@ -99,6 +101,15 @@ ignore:
 ## Themes: https://hexo.io/themes/
 theme: maupassant
 
+#RSS订阅
+#plugin:
+#  hexo-generator-feed
+#Feed Atom
+feed:
+  type: atom
+  path: atom.xml
+  limit: 20
+
 # Deployment
 ## Docs: https://hexo.io/docs/one-command-deployment
 deploy:
@@ -117,11 +128,3 @@ deploy:
 #  name: <my "visible" name>
 #  email: <my email>
 
-#RSS订阅
-plugin:
-  hexo-generator-feed
-#Feed Atom
-feed:
-  type: atom
-  path: atom.xml
-  limit: 20

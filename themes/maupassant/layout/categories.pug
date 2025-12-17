@@ -1,0 +1,13 @@
+extends base
+
+block title
+  title= __('categories') + ' | ' + config.title
+
+block content
+  .post
+    h1.post-title= __('categories')
+    .post-content
+      // 使用与侧边栏相同的 helper 输出分类列表
+      != list_categories({show_count: theme.show_category_count})
+
+

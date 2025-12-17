@@ -1,7 +1,24 @@
 ---
 title: About
-date: 2022-03-10 00:13:53
+date: 2025-12-15 23:04:30
+donate: true  # 仅在这篇文章显示打赏
 ---
+
+所以，
+
+在世之人 一定要更努力的生活，
+
+虽然偶尔会哭泣，
+
+但要笑得更多，
+
+活得更坚强，
+
+这就是对所受的爱的报答。
+
+知足且上进，温柔且坚定。
+
+虽然没有绝对的感同深受，但我也愿意为了更懂你而花心思。
 
 <iframe frameborder="no" border="0" marginwidth="0" marginheight="0" width=330 height=450 src="//music.163.com/outchain/player?type=0&id=7020312267&auto=1&height=430"></iframe>
 
@@ -11,12 +28,8 @@ date: 2022-03-10 00:13:53
 
 不爱吃辣，也不喜欢一些奇奇怪怪的味道的食物。没有太忌口的食物。喜欢喝7分甜的白桃芒果。
 
-身高是个谜，忽高忽低的，大约176cm吧。
-
 喜欢钻研技术。
 
-#### Contact
 
-E-mail: 784307069@qq.com
 
-![IMG_20211017_181651](IMG_20211017_181651.jpg)
+![avatar](about/avatar.jpg)

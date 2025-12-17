@@ -20,6 +20,7 @@ valine: ## See: https://valine.js.org
   enable: false ## If you want to use Valine comment system, please set the value to true.
   appid: ## Your LeanCloud application App ID, e.g. pRBBL2JR4N7kLEGojrF0MsSs-gzGzoHsz
   appkey: ## Your LeanCloud application App Key, e.g. tjczHpDfhjYDSYddzymYK1JJ
+  serverURLs: ## If you are the "LeanCloud" in China, then this option is not mandatory to fill out. REST API Server Url" of your "LeanCloud, e.g. https://prbbl2jr.api.lncldglobal.com
   notify: false ## Mail notifier, see https://github.com/xCss/Valine/wiki/Valine-评论系统中的邮件提醒设置
   verify: false ## Validation code.
   placeholder: Just so so ## Comment box placeholders.
@@ -42,7 +43,10 @@ minivaline: ## See: https://github.com/MiniValine/MiniValine
 waline: ## See: https://waline.js.org/
   enable: false ## If you want to use Waline comment system, please set the value to true.
   serverURL: ## Your server url, e.g. https://your-domain.vercel.app
-  pageSize: ## The desired number of comments shown in each page.
+  pageSize: 30 ## The desired number of comments shown in each page.
+  wordLimit: 500 ## Limit the number of words in comments, 0 means no limit.
+  requiredMeta: ['nick','mail'] ## Required user information, e.g. ['nick','mail','link']
+  count: 5 ## The number comments displayed in the recent_comments widget, default is 10.
 utterances: ## See: https://utteranc.es
   enable: false ## If you want to use Utterances comment system, please set the value to true.
   repo: ## The repository utterances will connect to, e.g. tufu9441/comments
@@ -60,6 +64,7 @@ swiftype: ## Your swiftype_key, e.g. m7b11ZrsT8Me7gzApciT
 self_search: false ## Use a jQuery-based local search engine, true/false.
 google_analytics: ## Your Google Analytics tracking id, e.g. UA-42425684-2
 baidu_analytics: ## Your Baidu Analytics tracking id, e.g. 8006843039519956000
+microsoft_clarity: ## Your Microsoft Clarity tracking id, e.g. zg2ctuea9j
 fancybox: true ## If you want to use fancybox please set the value to true.
 show_category_count: false ## If you want to show the count of categories in the sidebar widget please set the value to true.
 toc_number: true ## If you want to add list number to toc please set the value to true.
@@ -76,11 +81,11 @@ canvas_nest:
 donate:
   enable: false ## If you want to display the donate button after each post, please set the value to true and fill the following items on your need. You can also enable donate button in a page by adding a "donate: true" item to the front-matter.
   github: ## GitHub URL, e.g. https://github.com/Kaiyuan/donate-page
-  alipay_qr: ## Path of Alipay QRcode image, e.g. /img/AliPayQR.png
-  wechat_qr: ## Path of Wechat QRcode image, e.g. /img/WeChatQR.png
-  btc_qr: ## Path of Bitcoin QRcode image, e.g. /img/BTCQR.png
-  btc_key: ## Bitcoin key, e.g. 1KuK5eK2BLsqpsFVXXSBG5wbSAwZVadt6L
-  paypal_url: ## Paypal URL, e.g. https://www.paypal.me/tufu9441
+  alipay_qr: /img/AliPayQR.png ## Path of Alipay QRcode image, e.g. /img/AliPayQR.png
+  wechat_qr: /img/WeChanSQ.png ## Path of Wechat QRcode image, e.g. /img/WeChatQR.png
+  btc_qr: /img/BTCQR.png ## Path of Bitcoin QRcode image, e.g. /img/BTCQR.png
+  btc_key: bc1q2ev7jda7drkgc05gwqthfruwk2m8sdcsgty8ym ## Bitcoin key, e.g. 1KuK5eK2BLsqpsFVXXSBG5wbSAwZVadt6L
+  paypal_url:  ## Paypal URL, e.g. https://www.paypal.me/tufu9441
 post_copyright:
   enable: false ## If you want to display the copyright info after each post, please set the value to true and fill the following items on your need.
   author: ## Your author name, e.g. tufu9441
@@ -93,50 +98,89 @@ copycode: true ## If you want to enable one-click copy of the code blocks, set t
 dark: false ## If you want to toggle between light/dark themes, set the value to true.
 totop: true ## If you want to use the rocketship button to return to the top, set the value to true.
 external_css: false ## If you want to load an external CSS file, set the value to true and create a file named "external.css" in the source/css folder.
+post_content_length: 180 ## Set the length of the post summary displayed on home page when no description written.
+icp: ## China mainland only, show icp info at the bottom.
 
 menu:
-  - page: home
+  - page: Home
     directory: .
     icon: fa-home
-  - page: archive
+  - page: Archive
     directory: archives/
     icon: fa-archive
+  - page: Categories
+    directory: categories/
+    icon: fa-folder
+  - page: Tags
+    directory: tags/
+    icon: fa-tags
+  - page: Links
+    directory: links/
+    icon: fa-link
+  - page: Timeline
+    directory: timeline/
+    icon: fa-history
   - page: about
     directory: about/
     icon: fa-user
-  - page: rss
-    directory: atom.xml
-    icon: fa-rss
 
-widgets: ## Six widgets in sidebar provided: search, category, tag, recent_posts, recent_comments and links.
+
+widgets: ## Seven widgets in sidebar provided: search, info, category, tag, recent_posts, recent_comments and links.
   - search
+  - info
   - category
   - tag
   - recent_posts
   - recent_comments
   - links
 
+info:
+  avatar: /img/avatar.png
+  discription: To be a better man.
+  outlinkitem:
+    - name: twitter
+      outlink: https://x.com/jingzeruc
+      message: Twitter
+    - name: envelope
+      outlink: mailto:jingzeruc@gmial.com
+      message: Email
+    - name: github
+      outlink: https://github.com/Abner-Do
+      message: Github
+    - name: rss
+      outlink: /atom.xml
+      message: RSS
+      
 links:
   - title: Sun Yiming
     url: https://estrm.github.io/
+    src: https://estrm.github.io/favicon.ico?v=2.11.1
+    desc: Sun Yiming's Blog
   - title: tufu
     url: https://www.haomwei.com/
-  - title: site-name3
-    url: http://www.example3.com/
+    src: https://www.haomwei.com/img/avatar.png
+    desc: tufu's blog
+  - title: 唯唯Melody
+    url: https://x.com/melodyandcarrot
+    src: https://pbs.twimg.com/profile_images/1892009250710487042/fUAR3oX2_x96.jpg
+    desc: melodyandcarrot's X
+
 
 timeline:
   - num: 1
-    word: 2014/06/12-Start
+    word: 2022/03/10-Start
   - num: 2
-    word: 2014/11/29-XXX
-  - num: 3
-    word: 2015/02/18-DDD
-  - num: 4
     word: More
 
 # Static files
 js: js
 css: css
+
+favicon:
+  small: /img/favicon.ico  # 16x16像素，浏览器标签页图标
+  medium: /img/favicon.svg # 32x32像素，高清设备图标
+  apple_touch_icon: /img/apple-touch-icon.png # 180x180像素，苹果设备主屏幕图标
+  safari_pinned_tab: /img/web-app-manifest-192x192.png
 
 # Theme version
 version: 1.0.0

@@ -348,4 +348,4 @@ homeDirectory: /home/john
 john:x:10000:5000:John Doe:/home/john:/bin/bash
 ```
 
-![image-20220428071428907](OpenLDAP/image-20220428071428907.png)
+![image-20220428071428907](image-20220428071428907.png)

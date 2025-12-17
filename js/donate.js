@@ -34,10 +34,9 @@ $(document).ready(function () {
         return scripts[scripts.length - 1]
     })()
     var successText = $(script).attr("successtext")
-    var clipboard = new ClipboardJS('#BTC');
-    clipboard.on('success',
-        function (e) {
-            console.log(successText)
+    $(function () {
+        var clipboard = new ClipboardJS('#BTC');
+        clipboard.on('success', function () {
             if (successText) {
                 toastr.options = {
                     "positionClass": "toast-top-center",
@@ -46,4 +45,5 @@ $(document).ready(function () {
                 toastr.success(successText)
             }
         });
+    });
 }(window, document);
